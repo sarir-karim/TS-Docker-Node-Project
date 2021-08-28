@@ -1,21 +1,24 @@
-FROM node:16 as base
 
-ENV NODE_ENV=production
+FROM node:10-alpine
 
-WORKDIR /usr/app
+# update packages
+RUN apk update
 
-COPY ["./package.json", "./package-lock.json*", "./"]
+# create root application folder
+WORKDIR /app
 
+# copy configs to /app folder
+COPY package*.json ./
+COPY tsconfig.json ./
+# copy source code to /app/src folder
+COPY src /app/src
+
+# check files list
 RUN ls -a
 
-RUN npm install typescript -g 
-RUN npm install rimraf -g 
 RUN npm install
-
-COPY . .
-
-FROM base as production
-
 RUN npm run build
 
-CMD ["npm", "start"]
+EXPOSE 7777
+
+CMD [ "node", "./dist/main.js" ]
